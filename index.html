@@ -15,17 +15,15 @@
   <div class="card">
     <h1>Hello, World!</h1>
     <p>Welcome to the MTG Tournament Organiser.</p>
-    <div style="margin-top:1.5rem;">
-      <label for="playerCount">Number of Players:</label>
-      <input type="number" id="playerCount" min="1" value="1" style="margin:0 0.5rem;">
-      <button onclick="organizeEvent()">Start Tournament</button>
-    </div>
+    <form id="tournamentForm" style="margin-top:1rem; text-align:left;">
+      <div style="margin-top:1.5rem; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+        <label for="playerCount">Number of Players:</label>
+        <input type="number" id="playerCount" min="1" value="1" style="width:4rem;">
+        <button id="startTournament" type="submit">Start Tournament</button>
+      </div>
+      <div id="playerNamesContainer" style="margin-top:1rem;"></div>
+    </form>
   </div>
-  <script>
-    function organizeEvent() {
-      const playerCount = document.getElementById('playerCount').value;
-      console.log('Starting tournament with ' + playerCount + ' players');
-    }
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>
