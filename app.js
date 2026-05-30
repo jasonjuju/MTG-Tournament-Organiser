@@ -1,64 +1,85 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const playerCountInput = document.getElementById('playerCount');
-  const tournamentForm = document.getElementById('tournamentForm');
-  const startButton = document.getElementById('startTournament');
-  const playerNamesContainer = document.getElementById('playerNamesContainer');
+class Player {
+  constructor(name, score = 0) {
+    this.name = name;
+    this.score = score;
+  }
+}
 
-  if (!playerCountInput || !tournamentForm || !startButton || !playerNamesContainer) {
-    console.warn('Required tournament elements not found');
+$(document).ready(() => {
+  const $playerCountInput = $('#playerCount');
+  const $tournamentForm = $('#tournamentForm');
+  const $playerNamesContainer = $('#playerNamesContainer');
+  const $playerList = $('#playerList');
+  const $emptyMessage = $('#emptyMessage');
+
+  if ($playerCountInput.length && $tournamentForm.length && $playerNamesContainer.length) {
+    setupEntryPage($playerCountInput, $tournamentForm, $playerNamesContainer);
     return;
   }
 
+  if ($playerList.length && $emptyMessage.length) {
+    renderResultsPage($playerList, $emptyMessage);
+    return;
+  }
+
+  console.warn('No recognised tournament page elements found');
+});
+
+function setupEntryPage($playerCountInput, $tournamentForm, $playerNamesContainer) {
   function updatePlayerNameFields() {
-    const count = parseInt(playerCountInput.value, 10) || 1;
-    playerNamesContainer.innerHTML = '';
+    const count = parseInt($playerCountInput.val(), 10) || 1;
+    $playerNamesContainer.empty();
 
     for (let i = 1; i <= count; i++) {
-      const wrapper = document.createElement('div');
-      wrapper.style.marginTop = '0.75rem';
+      const $wrapper = $('<div>').css('margin-top', '0.75rem');
+      const $label = $('<label>')
+        .attr('for', 'playerName' + i)
+        .text('Player ' + i + ' Name:')
+        .css({ display: 'block', 'margin-bottom': '0.25rem' });
+      const $input = $('<input>')
+        .attr({ type: 'text', id: 'playerName' + i, name: 'playerName' + i, placeholder: 'Player ' + i })
+        .css({ width: '100%', padding: '0.4rem', 'box-sizing': 'border-box' });
 
-      const label = document.createElement('label');
-      label.setAttribute('for', 'playerName' + i);
-      label.textContent = 'Player ' + i + ' Name:';
-      label.style.display = 'block';
-      label.style.marginBottom = '0.25rem';
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.id = 'playerName' + i;
-      input.name = 'playerName' + i;
-      input.placeholder = 'Player ' + i;
-      input.style.width = '100%';
-      input.style.padding = '0.4rem';
-      input.style.boxSizing = 'border-box';
-
-      wrapper.appendChild(label);
-      wrapper.appendChild(input);
-      playerNamesContainer.appendChild(wrapper);
+      $wrapper.append($label, $input);
+      $playerNamesContainer.append($wrapper);
     }
   }
 
-  playerCountInput.addEventListener('input', updatePlayerNameFields);
-  tournamentForm.addEventListener('submit', event => {
+  $playerCountInput.on('input', updatePlayerNameFields);
+  $tournamentForm.on('submit', event => {
     event.preventDefault();
     startTournament();
   });
-
   updatePlayerNameFields();
-});
+}
+
+function renderResultsPage($playerList, $emptyMessage) {
+  const players = JSON.parse(sessionStorage.getItem('players') || '[]');
+
+  if (!players.length) {
+    $emptyMessage.show();
+    return;
+  }
+
+  players.forEach(item => {
+    const player = new Player(item.name, item.score);
+    const $li = $('<li>').text(`${player.name} — Score: ${player.score}`);
+    $playerList.append($li);
+  });
+}
 
 function startTournament() {
-  const playerCount = parseInt(document.getElementById('playerCount').value, 10) || 1;
-  const playerNames = [];
+  const playerCount = parseInt($('#playerCount').val(), 10) || 1;
+  const players = [];
 
   for (let i = 1; i <= playerCount; i++) {
-    const input = document.getElementById('playerName' + i);
-    if (input) {
-      const name = input.value.trim();
-      if (name) playerNames.push(name);
+    const $input = $('#playerName' + i);
+    if ($input.length) {
+      const name = $input.val().trim();
+      if (name) players.push(new Player(name));
     }
   }
 
-  sessionStorage.setItem('playerNames', JSON.stringify(playerNames));
+  sessionStorage.setItem('players', JSON.stringify(players));
   window.location.href = 'results.html';
 }
