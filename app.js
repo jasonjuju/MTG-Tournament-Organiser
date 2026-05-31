@@ -52,14 +52,14 @@ function setupEntryPage($playerCountInput, $tournamentForm, $playerNamesContaine
     $playerNamesContainer.empty();
 
     for (let i = 1; i <= count; i++) {
-      const $wrapper = $('<div>').css('margin-top', '0.75rem');
+      const $wrapper = $('<div>').addClass('mt-3');
       const $label = $('<label>')
         .attr('for', 'playerName' + i)
         .text('Player ' + i + ' Name:')
-        .css({ display: 'block', 'margin-bottom': '0.25rem' });
+        .addClass('form-label d-block mb-2');
       const $input = $('<input>')
         .attr({ type: 'text', id: 'playerName' + i, name: 'playerName' + i, placeholder: 'Player ' + i })
-        .css({ width: '100%', padding: '0.4rem', 'box-sizing': 'border-box' });
+        .addClass('form-control');
 
       $wrapper.append($label, $input);
       $playerNamesContainer.append($wrapper);
@@ -122,7 +122,9 @@ function renderSwissPage({ $pairingsList, $roundInfo, $roundResults, $roundScore
     sortPlayers();
     $roundScoreboard.empty();
     players.forEach(player => {
-      const $item = $('<li>').text(`${player.name}: ${player.score} pts (W:${player.wins} L:${player.losses}${player.byes ? ' B:' + player.byes : ''})`);
+      const $item = $('<li>')
+        .addClass('list-group-item d-flex justify-content-between')
+        .html(`<span>${player.name}</span><span>${player.score} pts (W:${player.wins} L:${player.losses}${player.byes ? ' B:' + player.byes : ''})</span>`);
       $roundScoreboard.append($item);
     });
   }
@@ -130,25 +132,27 @@ function renderSwissPage({ $pairingsList, $roundInfo, $roundResults, $roundScore
   function renderPairings(pairings) {
     $pairingsList.empty();
     pairings.forEach((pair, index) => {
-      const $item = $('<li>').css('margin-bottom', '1rem');
+      const $item = $('<li>').addClass('mb-3');
 
       if (pair.length === 1) {
         $item.text(`${pair[0].name} receives a bye and will earn 3 points (treated as a 2-0).`);
       } else {
         const groupName = `round${currentRound}-pair${index}`;
-        const $matchLabel = $('<div>').text(`${pair[0].name} vs ${pair[1].name}`);
+        const $matchLabel = $('<div>').addClass('fw-bold mb-2').text(`${pair[0].name} vs ${pair[1].name}`);
 
-        const $row = $('<div>').css({ display: 'flex', gap: '0.5rem', 'align-items': 'center' });
+        const $row = $('<div>').addClass('d-flex gap-2 align-items-center');
 
-        const $leftLabel = $('<label>').text(pair[0].name + ' wins:');
+        const $leftLabel = $('<label>').addClass('form-label me-2').text(pair[0].name + ' wins:');
         const $leftInp = $('<input>')
           .attr({ type: 'number', min: 0, max: 2, step: 1, id: `${groupName}-a` })
-          .css({ width: '3rem' });
+          .addClass('form-control')
+          .css({ width: '80px' });
 
-        const $rightLabel = $('<label>').text(pair[1].name + ' wins:');
+        const $rightLabel = $('<label>').addClass('form-label me-2').text(pair[1].name + ' wins:');
         const $rightInp = $('<input>')
           .attr({ type: 'number', min: 0, max: 2, step: 1, id: `${groupName}-b` })
-          .css({ width: '3rem' });
+          .addClass('form-control')
+          .css({ width: '80px' });
 
         $row.append($leftLabel, $leftInp, $('<span>').text(' / '), $rightLabel, $rightInp);
         $item.append($matchLabel, $row);
@@ -161,7 +165,7 @@ function renderSwissPage({ $pairingsList, $roundInfo, $roundResults, $roundScore
   function renderResults(results) {
     $roundResults.empty();
     results.forEach(result => {
-      const $item = $('<li>').text(result);
+      const $item = $('<li>').addClass('list-group-item').text(result);
       $roundResults.append($item);
     });
   }
@@ -268,9 +272,11 @@ function renderResultsPage($playerList, $emptyMessage) {
 
   players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
-  players.forEach(item => {
+  players.forEach((item, rank) => {
     const player = new Player(item.name, item.score);
-    const $li = $('<li>').text(`${player.name} — Score: ${player.score}`);
+    const $li = $('<li>')
+      .addClass('list-group-item d-flex justify-content-between')
+      .html(`<span><strong>#${rank + 1} ${player.name}</strong></span><span class="badge bg-primary">${player.score} pts</span>`);
     $playerList.append($li);
   });
 }
